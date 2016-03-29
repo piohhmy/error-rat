@@ -10,4 +10,5 @@ class Rb2Insp():
     def process(self, occur):
         sessions = self.insp_proxy.find_sessions(occur.user_id, occur.timestamp)
         if sessions:
-            self.rb_proxy.post_comment('Inspectlet Session: {}'.format(sessions[0]))
+            lines = "\n".join(sessions)
+            self.rb_proxy.post_comment('Inspectlet Sessions:\n{}'.format(lines))

@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 from unittest.mock import Mock
+from nose.tools import assert_false
 
 from errorrat.processor import Rb2Insp, RollbarOccurrence
 
@@ -21,7 +22,7 @@ class TestProcessor(unittest.TestCase):
         insp_proxy.find_sessions.assert_called_once_with(rb_o.user_id, rb_o.timestamp)
 
 
-    def test_rb2insp_postsRbCommentWithSession(self):
+    def test_rb2insp_singleSession_postsRbCommentWithSession(self):
         rb_o = create_occurrence()
         insp_proxy = Mock()
         rb_proxy = Mock()
@@ -31,7 +32,32 @@ class TestProcessor(unittest.TestCase):
         p = Rb2Insp(rb_proxy, insp_proxy)
         p.process(rb_o)
 
-        rb_proxy.post_comment.assert_called_once_with('Inspectlet Session: {}'.format(fake_session))
+        expected_comment = 'Inspectlet Sessions:\n{}'.format(fake_session)
+        rb_proxy.post_comment.assert_called_once_with(expected_comment)
 
 
+    def test_rb2insp_multSessions_postsRbCommentWithSessions(self):
+        rb_o = create_occurrence()
+        insp_proxy = Mock()
+        rb_proxy = Mock()
+        fake_session1 = 'http://inspectlet.com/watch/123'
+        fake_session2 = 'http://inspectlet.com/watch/456'
+        insp_proxy.find_sessions.return_value = [fake_session1, fake_session2]
 
+        p = Rb2Insp(rb_proxy, insp_proxy)
+        p.process(rb_o)
+
+        expected_comment = 'Inspectlet Sessions:\n{}\n{}'.format(fake_session1,
+                                                              fake_session2)
+        rb_proxy.post_comment.assert_called_once_with(expected_comment)
+
+    def test_rb2insp_noSessions_noCommentPost(self):
+        rb_o = create_occurrence()
+        insp_proxy = Mock()
+        rb_proxy = Mock()
+        insp_proxy.find_sessions.return_value = []
+
+        p = Rb2Insp(rb_proxy, insp_proxy)
+        p.process(rb_o)
+
+        assert_false(rb_proxy.post_comment.called)
