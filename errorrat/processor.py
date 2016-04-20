@@ -1,7 +1,3 @@
-from collections import namedtuple
-
-RollbarOccurrence = namedtuple('RollbarOccurrence', ['user_id', 'timestamp'])
-
 class Rb2Insp():
     def __init__(self, rb_proxy, insp_proxy):
         self.insp_proxy = insp_proxy

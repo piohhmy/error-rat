@@ -3,7 +3,8 @@ from datetime import datetime
 from unittest.mock import Mock
 from nose.tools import assert_false
 
-from errorrat.processor import Rb2Insp, RollbarOccurrence
+from errorrat.processor import Rb2Insp
+from errorrat.proxies.rollbar import RollbarOccurrence
 
 
 def create_occurrence(user_id=1, ts=datetime.now()):
